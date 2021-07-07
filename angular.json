@@ -11,7 +11,7 @@
           "builder": "@angular-devkit/build-angular:browser",
           "outputs": ["{options.outputPath}"],
           "options": {
-            "outputPath": "dist/apps/pilotdb",
+            "outputPath": "dist/apps/pilotdb/browser",
             "index": "apps/pilotdb/src/index.html",
             "main": "apps/pilotdb/src/main.ts",
             "polyfills": "apps/pilotdb/src/polyfills.ts",
@@ -91,6 +91,65 @@
             "jestConfig": "apps/pilotdb/jest.config.js",
             "passWithNoTests": true
           }
+        },
+        "server": {
+          "builder": "@angular-devkit/build-angular:server",
+          "options": {
+            "outputPath": "dist/apps/pilotdb/server",
+            "main": "apps/pilotdb/server.ts",
+            "tsConfig": "apps/pilotdb/tsconfig.server.json",
+            "inlineStyleLanguage": "scss"
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "media",
+              "fileReplacements": [
+                {
+                  "replace": "apps/pilotdb/src/environments/environment.ts",
+                  "with": "apps/pilotdb/src/environments/environment.prod.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "extractLicenses": false
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-ssr": {
+          "builder": "@nguniversal/builders:ssr-dev-server",
+          "configurations": {
+            "development": {
+              "browserTarget": "pilotdb:build:development",
+              "serverTarget": "pilotdb:server:development"
+            },
+            "production": {
+              "browserTarget": "pilotdb:build:production",
+              "serverTarget": "pilotdb:server:production"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "prerender": {
+          "builder": "@nguniversal/builders:prerender",
+          "options": {
+            "routes": [
+              "/"
+            ]
+          },
+          "configurations": {
+            "production": {
+              "browserTarget": "pilotdb:build:production",
+              "serverTarget": "pilotdb:server:production"
+            },
+            "development": {
+              "browserTarget": "pilotdb:build:development",
+              "serverTarget": "pilotdb:server:development"
+            }
+          },
+          "defaultConfiguration": "production"
         }
       }
     },

@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:13.3-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${APP_DB_NAME}
+      POSTGRES_USER: ${APP_DB_USER}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      PGPASSWORD: ${APP_DB_PASSWORD}
+      PGPORT: ${APP_DB_PORT}
+    networks:
+      - app
+    ports:
+      - ${APP_DB_PORT}:${APP_DB_PORT}
+      
+  postgres_ui:
+    image: dpage/pgadmin4:5.2
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${APP_DB_ADMIN_UI_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${APP_DB_ADMIN_UI_DEFAULT_PASSWORD}
+    networks:
+      - app
+    logging:
+      driver: none
+    ports:
+      - ${APP_DB_ADMIN_UI_PORT}:80
+
+networks:
+  app:
