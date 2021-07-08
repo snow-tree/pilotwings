@@ -14,12 +14,7 @@ export function app(): express.Express {
   const server = express();
   const distFolder = join(process.cwd(), 'dist/apps/pilotdb/browser');
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
-  const db = postgres({
-    port: maybe(process.env.APP_DB_PORT).map(a => +a).valueOrThrow(),
-    password: process.env.APP_DB_PASSWORD,
-    user: process.env.APP_DB_USER,
-    db: process.env.APP_DB_NAME,
-  })
+  const db = postgres(maybe(process.env.DATABASE_URL).valueOrThrow('DATABASE_URL is not defined'), { ssl: 'prefer' })
 
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const upload = require('multer')({ dest: 'uploads/' })

@@ -92,6 +92,16 @@
             "passWithNoTests": true
           }
         },
+        "docker": {
+          "builder": "@nx-tools/nx-docker:build",
+          "options": {
+            "push": true,
+            "file": "./apps/pilotdb/Dockerfile",
+            "tags": [
+              "registry.heroku.com/pilotdb/web"
+            ]
+          }
+        },
         "server": {
           "builder": "@angular-devkit/build-angular:server",
           "options": {

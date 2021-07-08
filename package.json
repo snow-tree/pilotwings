@@ -11,7 +11,7 @@
     "postinstall": "node ./decorate-angular-cli.js && ngcc --properties es2015 browser module main",
     "start": "nx run-many --target=serve-ssr --projects=pilotdb --parallel",
     "start.services": "docker compose up -d --remove-orphans",
-    "build": "ng build",
+    "build": "ng run pilotdb:server & ng run pilotdb:build",
     "test": "ng test",
     "lint": "nx workspace-lint && ng lint",
     "e2e": "ng e2e",
@@ -40,7 +40,8 @@
     "db.app.migrate": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
     "db.app.seed.dev": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations/seed-dev node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
     "db.app.migrate.local": "npm run db.app.migrate && npm run db.app.seed.dev",
-    "heroku-release": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js"
+    "heroku-release": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
+    "docker": "npx nx run-many --target=docker --all --parallel"
   },
   "private": true,
   "dependencies": {
@@ -85,6 +86,7 @@
     "@nrwl/linter": "12.5.7",
     "@nrwl/tao": "12.5.7",
     "@nrwl/workspace": "12.5.7",
+    "@nx-tools/nx-docker": "^1.0.5",
     "@tailwindcss/aspect-ratio": "0.2.1",
     "@tailwindcss/forms": "0.3.3",
     "@tailwindcss/line-clamp": "0.2.1",
