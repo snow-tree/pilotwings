@@ -57,6 +57,23 @@ export function app(): express.Express {
   server.set('view engine', 'html');
   server.set('views', distFolder);
 
+  server.get('/search', (req, res) => {
+    const q = maybe<string>(req.query.q as string).map(b => b.toUpperCase()).valueOrNull()
+    db`SELECT * FROM (
+      SELECT "name", "state", similarity("name", ${q}) AS sml
+        FROM "Pilots"
+        WHERE ${q} <% "name"
+        ORDER BY sml DESC, "name"
+      ) AS d
+      WHERE "sml" > 0.20
+      LIMIT 50;
+    `.then(a => {
+      res.setHeader('Cache-Control', `public, max-age=${60 * 60 * 24 * 3}`)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      res.send(a.map(({ sml, ...others }) => ({ ...others })))
+    })
+  })
+
   // Example Express Rest API endpoints
   // server.get('/api/**', (req, res) => { });
   // Serve static files from /browser

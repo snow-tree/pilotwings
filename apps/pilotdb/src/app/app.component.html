@@ -1,1 +1,23 @@
-<h1 class="text-3xl text-pink-700">Test</h1>
+<form class="bg-white shadow-md rounded px-6 pt-4 pb-6 mb-4" action="/" [formGroup]="formGroup">
+  <div class="mb-4">
+    <label class="block text-gray-700 text-sm font-bold mb-2" for="username">FAA Pilot Search</label>
+    <input formControlName="search" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="q" name="q" type="text" placeholder="search for a pilot">
+  </div>
+</form>
+<ng-container *ngIf="items$ | async as items;">
+  <table class="table-auto mx-6" *ngIf="items.length; else noItems">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of items">
+        <td>{{ item.name }}</td>
+        <td>{{ item.state }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <ng-template #noItems><p class="mx-6">No results</p></ng-template>
+</ng-container>
