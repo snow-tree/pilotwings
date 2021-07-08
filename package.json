@@ -39,7 +39,8 @@
     "db.app.reset": "npm run db.app.drop && npm run db.app.create && npm run db.app.migrate.local",
     "db.app.migrate": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
     "db.app.seed.dev": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations/seed-dev node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
-    "db.app.migrate.local": "npm run db.app.migrate && npm run db.app.seed.dev"
+    "db.app.migrate.local": "npm run db.app.migrate && npm run db.app.seed.dev",
+    "heroku-release": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js"
   },
   "private": true,
   "dependencies": {
