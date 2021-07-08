@@ -30,7 +30,13 @@
     "dev:ssr": "ng run pilotdb:serve-ssr",
     "serve:ssr": "node dist/pilotdb/server/main.js",
     "build:ssr": "ng build && ng run pilotdb:server",
-    "prerender": "ng run pilotdb:prerender"
+    "prerender": "ng run pilotdb:prerender",
+    "db.app.drop": "docker exec -it ibble-postgres psql -U localdev -d postgres -c \"DROP DATABASE IF EXISTS ibble;\"",
+    "db.app.create": "docker exec -it ibble-postgres psql -U localdev -d postgres -c \"CREATE DATABASE ibble;\"",
+    "db.app.reset": "npm run db.app.drop && npm run db.app.create && npm run db.app.migrate.local",
+    "db.app.migrate": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
+    "db.app.seed.dev": "APP_DB_MIGRATE_DIR=apps/pilotdb/migrations/seed-dev node -r dotenv/config node_modules/.bin/postgrator -c postgrator.js",
+    "db.app.migrate.local": "npm run db.app.migrate && npm run db.app.seed.dev"
   },
   "private": true,
   "dependencies": {
@@ -45,9 +51,14 @@
     "@angular/router": "^12.1.1",
     "@nguniversal/express-engine": "^12.1.0",
     "@nrwl/angular": "12.5.7",
+    "class-transformer": "^0.4.0",
+    "date-fns": "^2.22.1",
     "express": "^4.15.2",
+    "multer": "^1.4.2",
+    "postgres": "^2.0.0-beta.6",
     "rxjs": "~7.2.0",
     "tslib": "^2.3.0",
+    "typescript-monads": "^6.0.1",
     "zone.js": "~0.11.4"
   },
   "devDependencies": {
@@ -73,6 +84,7 @@
     "@tailwindcss/typography": "0.4.1",
     "@types/express": "^4.17.0",
     "@types/jest": "26.0.24",
+    "@types/multer": "^1.4.7",
     "@types/node": "16.0.0",
     "@typescript-eslint/eslint-plugin": "4.28.2",
     "@typescript-eslint/parser": "4.28.2",
@@ -84,7 +96,10 @@
     "eslint-plugin-cypress": "^2.11.3",
     "jest": "27.0.6",
     "jest-preset-angular": "9.0.4",
+    "pg": "^8.6.0",
     "postcss": "^8.3.5",
+    "postgrator": "^4.1.1",
+    "postgrator-cli": "^4.0.0",
     "prettier": "^2.3.2",
     "tailwindcss": "^2.2.4",
     "ts-jest": "27.0.3",

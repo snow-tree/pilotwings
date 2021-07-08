@@ -1,23 +1,58 @@
 import 'zone.js/dist/zone-node';
-
 import { ngExpressEngine } from '@nguniversal/express-engine';
-import { join } from 'path';
-import * as express from 'express';
-
+import { join, resolve } from 'path';
 import { AppServerModule } from './src/main.server';
 import { APP_BASE_HREF } from '@angular/common';
 import { existsSync } from 'fs';
+import { parseBasicPilotCsv } from './src/faa-csv-db-parser';
+import { maybe } from 'typescript-monads';
+import * as express from 'express';
+import * as postgres from 'postgres'
 
 // The Express app is exported so that it can be used by serverless Functions.
 export function app(): express.Express {
   const server = express();
   const distFolder = join(process.cwd(), 'dist/apps/pilotdb/browser');
   const indexHtml = existsSync(join(distFolder, 'index.original.html')) ? 'index.original.html' : 'index';
+  const db = postgres({
+    port: maybe(process.env.APP_DB_PORT).map(a => +a).valueOrThrow(),
+    password: process.env.APP_DB_PASSWORD,
+    user: process.env.APP_DB_USER,
+    db: process.env.APP_DB_NAME,
+  })
+
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const upload = require('multer')({ dest: 'uploads/' })
 
   // Our Universal express-engine (found @ https://github.com/angular/universal/tree/master/modules/express-engine)
   server.engine('html', ngExpressEngine({
     bootstrap: AppServerModule,
   }));
+
+  function chunkItems<T>(items: T[], size: number) {
+    return items.reduce((chunks: T[][], item: T, index) => {
+      const chunk = Math.floor(index / size);
+      chunks[chunk] = ([] as T[]).concat(chunks[chunk] || [], item);
+      return chunks;
+    }, []);
+  }
+
+  server.post('/pilot_basic', upload.single('file'), (req, res) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    parseBasicPilotCsv(resolve((req as any).file.path)).then(a => {
+      res.send()
+
+      const all = chunkItems(Object.values(a), 5000).map(chunks => {
+        return db`INSERT INTO "Pilots" ${db(chunks)}
+                  ON CONFLICT ("id") DO UPDATE SET
+                    "firstAndMiddleName" = excluded."firstAndMiddleName",
+                    "lastName" = excluded."lastName";`
+          .catch(console.log)
+      })
+
+      Promise.all(all)
+    })
+  })
 
   server.set('view engine', 'html');
   server.set('views', distFolder);
